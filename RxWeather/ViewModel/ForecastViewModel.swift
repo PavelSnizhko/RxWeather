@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 protocol ForecastRequsting {
     func getForecast(by location: Location) -> Observable<WeatherContainer>
@@ -95,11 +96,25 @@ extension ForecastViewModel: ViewModelType {
     
     struct Output {
         let wetherCellViewodels: Observable<[WeatherCellViewModel]>
+        let location: Driver<String>
+        let time: Driver<String>
     }
     
     func transform(input: Input) -> Output {
+        let viewModels = input.viewDidLoad.flatMap(prepareWeatherCellViewModels)
+        let location = locationService.cityObservable.asDriver(onErrorJustReturn: "")
         
-        let output = Output(wetherCellViewodels: input.viewDidLoad.flatMap(prepareWeatherCellViewModels))
+        let currentTimeObservable = Observable<Int>.interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
+            .map { _ in
+                return Int(Date().timeIntervalSince1970)
+            }
+        
+        let time = currentTimeObservable
+            .map{currentTime -> String in
+                return DateFormatHelper.retrieveTime(from: currentTime)
+            }.asDriver(onErrorJustReturn: "")
+        
+        let output = Output(wetherCellViewodels: viewModels, location: location, time: time)
         
         return output
     }

@@ -25,10 +25,18 @@ struct DateFormatHelper {
     static let hourlyDateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm"
+        dateFormatter.locale = Locale(identifier: "en_US")
         
         return dateFormatter
     }()
     
+    static let timeDateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm a"
+        dateFormatter.locale = Locale(identifier: "en_US")
+
+        return dateFormatter
+    }()
     
     static func mapToDayOfWeek(from string: String) -> String {
         guard let date = DateFormatHelper.dateFormatter.date(from: string) else {
@@ -41,5 +49,10 @@ struct DateFormatHelper {
     static func dateFromUTC(dt: Int) -> Date {
         let date = Date(timeIntervalSince1970: TimeInterval(dt))
         return date
+    }
+    
+    static func retrieveTime(from currentTime: Int) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(currentTime))
+        return timeDateFormatter.string(from: date)
     }
 }

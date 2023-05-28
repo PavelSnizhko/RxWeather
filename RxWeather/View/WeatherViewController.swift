@@ -76,9 +76,6 @@ class WeatherViewController: UIViewController {
             containerView.heightAnchor.constraint(equalTo: view.heightAnchor),
         ])
         
-        locationLabel.text = "Pasuruan"
-        timeLabel.text = "17.45 PM"
-        
         containerView.addSubview(geoMetaStackView)
         geoMetaStackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -102,12 +99,15 @@ class WeatherViewController: UIViewController {
     
     func setupBindings() {
         disposeBag = DisposeBag {
-            forecastViewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad))
-                .wetherCellViewodels
+            let output = forecastViewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad))
+            
+            output.wetherCellViewodels
                 .bind(to: collectionView.rx.items(cellIdentifier: WeatherCell.reuseIdentifier, cellType: WeatherCell.self)) { index, viewModel, cell in
                 cell.viewModel = viewModel
             }
             
+            output.location.drive(locationLabel.rx.text)
+            output.time.drive(timeLabel.rx.text)
         }
     }
     
