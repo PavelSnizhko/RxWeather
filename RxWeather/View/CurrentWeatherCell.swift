@@ -6,9 +6,18 @@
 //
 
 import UIKit
+import RxSwift
 
 class CurrentWeatherCell: UICollectionViewCell {
     static let reuseIdentifier = "CurrentWeatherCell"
+    
+    var viewModel: WeatherCellViewModel! {
+        didSet {
+            bindViewModel()
+        }
+    }
+    
+    private let disposeBag = DisposeBag()
 
     private let timeLabel: UILabel = {
         let label = UILabel()
@@ -20,7 +29,7 @@ class CurrentWeatherCell: UICollectionViewCell {
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleToFill
+        imageView.contentMode = .scaleAspectFit
         
         return imageView
     }()
@@ -73,10 +82,11 @@ class CurrentWeatherCell: UICollectionViewCell {
         
     }
     
-    // Configure the cell with the view model
-    func configure(with viewModel: CurrentWeatherCellViewModel) {
-        timeLabel.text = viewModel.timeString
-        imageView.image = viewModel.weatherImage
-        temperatureLabel.text = viewModel.temperature
+    private func bindViewModel() {
+        viewModel.weatherImage.bind(to: imageView.rx.image).disposed(by: disposeBag)
+        
+        timeLabel.text = viewModel.dateString
+        temperatureLabel.text = viewModel.celciusTemperature
     }
+    
 }

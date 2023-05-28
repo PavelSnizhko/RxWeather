@@ -6,12 +6,37 @@
 //
 
 import UIKit
+import RxSwift
 
 class ViewController: UIViewController {
+    
+    private let networkService = NetworkService()
+    private let locationService = LocationService()
+    
+    lazy var weatherViewController: UIViewController = {
+        let viewModel = ForecastViewModel(networkService: networkService, locationService: locationService)
+        let vc = WeatherViewController()
+        vc.forecastViewModel = viewModel
+        return vc
+    }()
+    
+    //TODO: Make view model container for all of these view models, kind of mini DI
+    lazy var currentWeatherViewModel = CurrentWeatherViewModel(networkService: networkService, locationService: locationService)
 
-    let weatherViewController: UIViewController = WeatherViewController()
-    let currentWeatherViewController: UIViewController = CurrentWeatherViewController()
-    let metricViewController: UIViewController = MetricsViewController()
+    lazy var currentWeatherViewController: UIViewController =  {
+        let vc = CurrentWeatherViewController()
+        vc.viewModel = currentWeatherViewModel
+        return vc
+    }()
+    
+    lazy var metricViewController: UIViewController = {
+        let viewModel = MetricViewModel(hourlyForecast: currentWeatherViewModel.hourlyForecast)
+        let vc = MetricsViewController()
+        vc.viewModel = viewModel
+        return vc
+    }()
+    
+    private let disposeBag = DisposeBag()
     
     private lazy var metricsView: UIView = {
         let view = UIView()
@@ -24,7 +49,7 @@ class ViewController: UIViewController {
         addChildrenViewControllers()
         // Do any additional setup after loading the view.
     }
-
+    
     func addChildrenViewControllers() {
         self.add(weatherViewController)
         weatherViewController.view.translatesAutoresizingMaskIntoConstraints = false
@@ -58,6 +83,6 @@ class ViewController: UIViewController {
             metricViewController.view.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
-
+    
 }
 

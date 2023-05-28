@@ -6,8 +6,17 @@
 //
 
 import UIKit
+import RxSwift
 
 class CurrentWeatherViewController: UIViewController {
+    
+    var viewModel: CurrentWeatherViewModel! {
+        didSet {
+            setupBindings()
+        }
+    }
+    
+    private var disposeBag: DisposeBag!
     
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -74,7 +83,6 @@ class CurrentWeatherViewController: UIViewController {
                                      containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)])
         
         collectionView.register(CurrentWeatherCell.self, forCellWithReuseIdentifier: CurrentWeatherCell.reuseIdentifier)
-        collectionView.dataSource = self
         collectionView.delegate = self
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,22 +101,15 @@ class CurrentWeatherViewController: UIViewController {
                                      headerView.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor, constant: -90),])
     }
     
-}
-
-extension CurrentWeatherViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return weatherData.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CurrentWeatherCell.reuseIdentifier, for: indexPath) as? CurrentWeatherCell else {
-            return UICollectionViewCell()
+    func setupBindings() {
+        disposeBag = DisposeBag {
+            viewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad))
+                .wetherCellViewodels
+                .bind(to: collectionView.rx.items(cellIdentifier: CurrentWeatherCell.reuseIdentifier, cellType: CurrentWeatherCell.self)) { index, viewModel, cell in
+                cell.viewModel = viewModel
+            }
+            
         }
-        
-        let viewModel = weatherData[indexPath.item]
-        cell.configure(with: viewModel)
-        
-        return cell
     }
     
 }

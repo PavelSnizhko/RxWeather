@@ -8,7 +8,13 @@
 import UIKit
 
 class MetricCollectionViewCell: UICollectionViewCell, ReusableView {
-    static let reuseIdentifier = "MetricTableViewCell"
+    static let reuseIdentifier = "MetricCollectionViewCell"
+    
+    var viewModel: MetricCellViewModel! {
+        didSet {
+            setupBindings()
+        }
+    }
     
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
@@ -66,10 +72,9 @@ class MetricCollectionViewCell: UICollectionViewCell, ReusableView {
         ])
     }
     
-    // Configure the cell with the view model
-    func configure(with metric: Metric) {
-        iconImageView.image = metric.icon
-        valueLabel.text = metric.valueString
-        titleLabel.text = metric.title
+    func setupBindings() {
+        iconImageView.image = viewModel.icon
+        valueLabel.text = viewModel.valueString
+        titleLabel.text = viewModel.title
     }
 }

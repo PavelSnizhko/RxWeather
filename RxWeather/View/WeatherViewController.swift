@@ -7,8 +7,18 @@
 
 import Foundation
 import UIKit
+import RxSwift
+import RxCocoa
 
 class WeatherViewController: UIViewController {
+        
+    var forecastViewModel: ForecastViewModel! {
+        didSet {
+            setupBindings()
+        }
+    }
+    
+    private var disposeBag: DisposeBag!
     
     private lazy var containerView: UIView = {
         let view = UIView()
@@ -49,12 +59,6 @@ class WeatherViewController: UIViewController {
         return collectionView
     }()
     
-    private var weatherData: [WeatherCellViewModel] = [
-        .init(weatherImage: UIImage(named: "Sun cloud mid rain")!, temperature: "23", description: "Moon Cloud Fast Wind", dateString: "Sunday, 8 March 2021"),
-        .init(weatherImage: UIImage(named: "Big rain drops")!, temperature: "25", description: "Moon Cloud Fast Wind", dateString: "Sunday, 8 March 2021"),
-        .init(weatherImage: UIImage(named: "Thunderstorm")!, temperature: "26", description: "Pretty good weather", dateString: "Sunday, 8 March 2021")
-    ]
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
@@ -83,7 +87,6 @@ class WeatherViewController: UIViewController {
         ])
         
         collectionView.register(WeatherCell.self, forCellWithReuseIdentifier: WeatherCell.reuseIdentifier)
-        collectionView.dataSource = self
         collectionView.delegate = self
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -97,23 +100,17 @@ class WeatherViewController: UIViewController {
         
     }
     
-}
-
-extension WeatherViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return weatherData.count
+    func setupBindings() {
+        disposeBag = DisposeBag {
+            forecastViewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad))
+                .wetherCellViewodels
+                .bind(to: collectionView.rx.items(cellIdentifier: WeatherCell.reuseIdentifier, cellType: WeatherCell.self)) { index, viewModel, cell in
+                cell.viewModel = viewModel
+            }
+            
+        }
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: WeatherCell.reuseIdentifier, for: indexPath) as? WeatherCell else {
-            return UICollectionViewCell()
-        }
-        
-        let viewModel = weatherData[indexPath.item]
-        cell.configure(with: viewModel)
-        
-        return cell
-    }
 }
 
 extension WeatherViewController: UICollectionViewDelegate {

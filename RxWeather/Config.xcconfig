@@ -1,0 +1,11 @@
+//
+//  Config.xcconfig
+//  RxWeather
+//
+//  Created by Павло Сніжко on 26.05.2023.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+API_KEY = eb0db420f68bf3b425633d9d4070a0b4

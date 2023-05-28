@@ -1,0 +1,34 @@
+# Xcode
+#
+.DS_Store
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.xccheckout
+*.xcworkspace
+
+# Swift Package Manager
+#
+# Add this line if you're using Swift Package Manager dependencies
+# /Packages/
+
+# CocoaPods
+#
+# Pods installed by CocoaPods
+# Add this line if you're using CocoaPods
+# /Pods/
+
+# Carthage
+#
+# Add this line if you're using Carthage
+# /Carthage/Build/
+
+# Config Files
+#
+Config.xcconfig
+
+# Localizations
+#
+*.xcloc
+*.strings

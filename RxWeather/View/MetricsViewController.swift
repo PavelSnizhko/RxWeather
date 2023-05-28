@@ -1,15 +1,24 @@
 //
-//  MetricsView.swift
+//  MetricsViewController.swift
 //  RxWeather
 //
 //  Created by Павло Сніжко on 22.05.2023.
 //
 
 import UIKit
+import RxSwift
 
 class MetricsViewController: UIViewController {
     
-    private let vm: MetricViewModel = MetricViewModel()
+    //TODO: make private via adding init for vc
+    var viewModel: MetricViewModel! {
+        didSet {
+            setupBindings()
+        }
+    }
+    
+    private var disposeBag: DisposeBag!
+    private var cellSizes: [CGSize] = []
     
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -34,8 +43,6 @@ class MetricsViewController: UIViewController {
         // Register the cell class or nib file if necessary
         collectionView.register(MetricCollectionViewCell.self)
         collectionView.delegate = self
-        // Set the table view's delegate and data source
-        collectionView.dataSource = self
     }
     
     private func setUI() {
@@ -51,45 +58,29 @@ class MetricsViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+    
+    func setupBindings() {
+        disposeBag = DisposeBag {
+            let wetherCellViewodels = viewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad)).wetherCellViewodels
+            
+            wetherCellViewodels.bind(to: collectionView.rx.items(cellIdentifier: MetricCollectionViewCell.defaultReuseIdentifier, cellType: MetricCollectionViewCell.self)) {[weak self] index, viewModel, cell in
+                    cell.viewModel = viewModel
+                    self?.cellSizes.append(viewModel.cellSize)
+                }
+            
+            wetherCellViewodels.subscribe(onNext: { [weak self] items in
+                items.forEach { vm in
+                    self?.cellSizes.append(vm.cellSize)
+                }
+            })
+        }
+    }
 }
 
-extension MetricsViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        vm.metrics.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell: MetricCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
-        
-        let metric = vm.metrics[indexPath.row]
-        // Configure the cell with data based on the index path
-        
-        cell.configure(with: metric)
-        
-        return cell
-    }
+extension MetricsViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let metric = vm.metrics[indexPath.row]
-        let width = maxLabelWidth(with: metric)
-        
-        return CGSize(width: width, height: 52)
-    }
-    
-    //TODO: maybe, have to be in
-    private func maxLabelWidth(with metric: Metric) -> CGFloat {
-        let valueLabel = UILabel(frame: CGRect.zero)
-        valueLabel.text = metric.valueString
-        valueLabel.font = UIFont.NunitoSans(.bold, size: 12)
-        valueLabel.sizeToFit()
-        
-        let titleLabel = UILabel(frame: CGRect.zero)
-        titleLabel.text = metric.title
-        titleLabel.font = UIFont.NunitoSans(.bold, size: 12)
-        titleLabel.sizeToFit()
-        
-        return max(valueLabel.frame.width, titleLabel.frame.width)
+        return cellSizes[indexPath.row]
     }
     
 }

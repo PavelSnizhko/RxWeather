@@ -1,14 +1,22 @@
 import UIKit
+import RxSwift
 
 class WeatherCell: UICollectionViewCell {
     static let reuseIdentifier = "WeatherCell"
+    
+    var viewModel: WeatherCellViewModel! {
+        didSet {
+            setupBindings()
+        }
+    }
+    
+    private let disposeBag = DisposeBag()
     
     private let containerView: UIView = {
         let view = UIView()
         // Set container view properties, such as background color, corner radius, etc.
         return view
     }()
-    
     
     private lazy var dateContainerView: UIView = {
         let view = UIView()
@@ -34,7 +42,7 @@ class WeatherCell: UICollectionViewCell {
     
     private lazy var temperatureLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.NunitoSans(.bold, size: 72)
+        label.font = UIFont.NunitoSans(.bold, size: 40)
         label.numberOfLines = 1
         label.textColor = Color.textColor.value
         // Set temperature label properties, such as text color, alignment, constraints, etc.
@@ -58,12 +66,13 @@ class WeatherCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // Configure the cell with the view model
-    func configure(with viewModel: WeatherCellViewModel) {
-        weatherImageView.image = viewModel.weatherImage
-        temperatureLabel.text = viewModel.temperature
+    func setupBindings() {
+        viewModel.weatherImage.bind(to: weatherImageView.rx.image).disposed(by: disposeBag)
+        
+        dateLabel.text = viewModel.dayOfWeek
+        temperatureLabel.text = viewModel.celciusTemperature
         descriptionLabel.text = viewModel.description
-        dateLabel.text = viewModel.dateString
+        
     }
     
     private func setUI() {
