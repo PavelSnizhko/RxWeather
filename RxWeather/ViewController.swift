@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     
     //TODO: Make view model container for all of these view models, kind of mini DI
     lazy var currentWeatherViewModel = CurrentWeatherViewModel(networkService: networkService, locationService: locationService)
-
+    
     lazy var currentWeatherViewController: UIViewController =  {
         let vc = CurrentWeatherViewController()
         vc.viewModel = currentWeatherViewModel
@@ -46,6 +46,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         addChildrenViewControllers()
         // Do any additional setup after loading the view.
     }

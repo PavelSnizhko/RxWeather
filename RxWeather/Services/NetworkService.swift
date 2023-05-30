@@ -8,11 +8,12 @@
 import Foundation
 import RxSwift
 import RxCocoa
+import NetworkLibrary
 
 enum RequestsConstant: String {
     case schema = "https"
-    case host = "api.openweathermap.org"
-    case APIKey = "eb0db420f68bf3b425633d9d4070a0b4" //TODO: move to safer place
+    case weatherHost = "api.openweathermap.org"
+    case gitHubHost = "raw.githubusercontent.com"
     
     enum Units: String {
         case standard, metric, imperial
@@ -40,8 +41,12 @@ enum WeatherError: String, Error {
 class NetworkService {
     private let session: URLSession = .shared
     
-    private lazy var baseURL: URL? = {
-        URL(string: RequestsConstant.schema.rawValue + "://" + RequestsConstant.host.rawValue)
+    private lazy var weatherBaseURL: URL? = {
+        URL(string: RequestsConstant.schema.rawValue + "://" + RequestsConstant.weatherHost.rawValue)
+    }()
+    
+    private lazy var cityBaseURL: URL? = {
+        URL(string: RequestsConstant.schema.rawValue + "://" + RequestsConstant.gitHubHost.rawValue)
     }()
     
     private func fetchData<T: Codable>(relativePath: RequestsConstant.RelativePath,
@@ -66,7 +71,7 @@ class NetworkService {
     }
     
     private func buildURL(relativePath: String, queryItems: [URLQueryItem]) -> URL? {
-        var url = URL(string: relativePath, relativeTo: baseURL)
+        var url = URL(string: relativePath, relativeTo: weatherBaseURL)
         url?.append(queryItems: queryItems)
         
         return url
@@ -105,6 +110,44 @@ extension NetworkService: CurrentWeatherRequesting, ForecastRequsting {
                           URLQueryItem(name: "exclude", value: "minutely,daily,alerts")]
         
         return fetchData(relativePath: .dailyForecastPath, queryItems: queryItems)
+    }
+    
+}
+
+//MARK: - RX
+
+extension NetworkFacade {
+    
+    public func execute<T: Decodable>(resource: Resource<T>) -> Observable<T> {
+        return Observable.create { observer in
+            execute(resource: resource) { result in
+                switch result {
+                case let .success(decodedModel):
+                    observer.onNext(decodedModel)
+                    observer.onCompleted()
+                case let .failure(error):
+                    observer.onError(error)
+                }
+            }
+            
+            return Disposables.create()
+        }
+    }
+    
+    public func execute(requestMetaData: RequestMetaData) -> Observable<Data> {
+        return Observable.create { observer in
+            execute(requestData: requestMetaData) { result in
+                switch result {
+                case let .success(data):
+                    observer.onNext(data)
+                    observer.onCompleted()
+                case let .failure(error):
+                    observer.onError(error)
+                }
+            }
+            
+            return Disposables.create()
+        }
     }
     
 }

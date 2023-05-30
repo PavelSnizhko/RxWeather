@@ -47,6 +47,8 @@
 		E8B27AAB2A21C56D00A8860B /* ViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B27AAA2A21C56D00A8860B /* ViewModelType.swift */; };
 		E8B27AAD2A21D4FF00A8860B /* UIViewController+Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B27AAC2A21D4FF00A8860B /* UIViewController+Reactive.swift */; };
 		E8B27AAF2A21DE4700A8860B /* HourlyForecastContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B27AAE2A21DE4700A8860B /* HourlyForecastContainer.swift */; };
+		E8B27AB12A24EB2400A8860B /* Cities.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B27AB02A24EB2400A8860B /* Cities.swift */; };
+		E8B27AB62A25BFBF00A8860B /* NetworkLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = E8B27AB52A25BFBF00A8860B /* NetworkLibrary */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -89,6 +91,8 @@
 		E8B27AAA2A21C56D00A8860B /* ViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelType.swift; sourceTree = "<group>"; };
 		E8B27AAC2A21D4FF00A8860B /* UIViewController+Reactive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Reactive.swift"; sourceTree = "<group>"; };
 		E8B27AAE2A21DE4700A8860B /* HourlyForecastContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlyForecastContainer.swift; sourceTree = "<group>"; };
+		E8B27AB02A24EB2400A8860B /* Cities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cities.swift; sourceTree = "<group>"; };
+		E8B27AB32A25B4D800A8860B /* NetworkLibrary */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NetworkLibrary; path = ../NetworkLibrary; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +102,7 @@
 			files = (
 				E827E1582A1F155800AA107B /* RxSwift in Frameworks */,
 				E827E1562A1F155700AA107B /* RxRelay in Frameworks */,
+				E8B27AB62A25BFBF00A8860B /* NetworkLibrary in Frameworks */,
 				E827E1542A1F155700AA107B /* RxCocoa in Frameworks */,
 				E8B27AA42A20CCD900A8860B /* Nuke in Frameworks */,
 			);
@@ -109,6 +114,7 @@
 		E827DFB92A1912FA00AA107B = {
 			isa = PBXGroup;
 			children = (
+				E8B27AB22A25B4D800A8860B /* Packages */,
 				E827DFC42A1912FA00AA107B /* RxWeather */,
 				E827DFC32A1912FA00AA107B /* Products */,
 			);
@@ -202,6 +208,7 @@
 				E8B27A952A2091EA00A8860B /* CurrentWeather.swift */,
 				E8B27A992A20A0CF00A8860B /* Location.swift */,
 				E8B27AAE2A21DE4700A8860B /* HourlyForecastContainer.swift */,
+				E8B27AB02A24EB2400A8860B /* Cities.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -239,6 +246,14 @@
 			path = Protocols;
 			sourceTree = "<group>";
 		};
+		E8B27AB22A25B4D800A8860B /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				E8B27AB32A25B4D800A8860B /* NetworkLibrary */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -260,6 +275,7 @@
 				E827E1552A1F155700AA107B /* RxRelay */,
 				E827E1572A1F155800AA107B /* RxSwift */,
 				E8B27AA32A20CCD900A8860B /* Nuke */,
+				E8B27AB52A25BFBF00A8860B /* NetworkLibrary */,
 			);
 			productName = RxWeather;
 			productReference = E827DFC22A1912FA00AA107B /* RxWeather.app */;
@@ -292,6 +308,7 @@
 			packageReferences = (
 				E827E1522A1F155700AA107B /* XCRemoteSwiftPackageReference "RxSwift" */,
 				E8B27AA22A20CCD900A8860B /* XCRemoteSwiftPackageReference "Nuke" */,
+				E8B27AB42A25BFBF00A8860B /* XCRemoteSwiftPackageReference "NetworkLibrary" */,
 			);
 			productRefGroup = E827DFC32A1912FA00AA107B /* Products */;
 			projectDirPath = "";
@@ -330,6 +347,7 @@
 				E827E15C2A1F7A1700AA107B /* Weather.swift in Sources */,
 				E827E13B2A1B3DFA00AA107B /* CurrentWeatherCell.swift in Sources */,
 				E8B27AAB2A21C56D00A8860B /* ViewModelType.swift in Sources */,
+				E8B27AB12A24EB2400A8860B /* Cities.swift in Sources */,
 				E8B27A9D2A20A74B00A8860B /* Configuration.swift in Sources */,
 				E827E1352A1B249E00AA107B /* Colors.swift in Sources */,
 				E8B27A9F2A20AE4500A8860B /* CurrentWetherViewModel.swift in Sources */,
@@ -582,6 +600,14 @@
 				minimumVersion = 12.0.0;
 			};
 		};
+		E8B27AB42A25BFBF00A8860B /* XCRemoteSwiftPackageReference "NetworkLibrary" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/PavelSnizhko/NetworkLibrary";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -604,6 +630,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E8B27AA22A20CCD900A8860B /* XCRemoteSwiftPackageReference "Nuke" */;
 			productName = Nuke;
+		};
+		E8B27AB52A25BFBF00A8860B /* NetworkLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E8B27AB42A25BFBF00A8860B /* XCRemoteSwiftPackageReference "NetworkLibrary" */;
+			productName = NetworkLibrary;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
