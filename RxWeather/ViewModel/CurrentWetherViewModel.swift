@@ -13,18 +13,18 @@ protocol CurrentWeatherRequesting {
 }
 
 struct CurrentWeatherViewModel {
-    private let networkService: CurrentWeatherRequesting
+    private let weatherProvider: CurrentWeatherRequesting
     private let locationService: LocationProviding
     let hourlyForecast: Observable<HourlyForecastContainer>
     
     var metricsViewModel: MetricViewModel!
     
-    init(networkService: CurrentWeatherRequesting, locationService: LocationProviding) {
-        self.networkService = networkService
+    init(weatherProvider: CurrentWeatherRequesting, locationService: LocationProviding) {
+        self.weatherProvider = weatherProvider
         self.locationService = locationService
         hourlyForecast = locationService.locationObservable
             .flatMap {
-                networkService.getHourlyForecast(by: $0.toLocation())
+                weatherProvider.getHourlyForecast(by: $0.toLocation())
             }
             .share()
     }

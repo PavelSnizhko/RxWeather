@@ -14,11 +14,11 @@ protocol ForecastRequsting {
 }
 
 struct ForecastViewModel {
-    private let networkService: ForecastRequsting
+    private let weatherProvider: ForecastRequsting
     private let locationService: LocationProviding
     
-    init(networkService: ForecastRequsting, locationService: LocationProviding) {
-        self.networkService = networkService
+    init(weatherProvider: ForecastRequsting, locationService: LocationProviding) {
+        self.weatherProvider = weatherProvider
         self.locationService = locationService
         
     }
@@ -55,7 +55,7 @@ struct ForecastViewModel {
     func prepareWeatherCellViewModels() -> Observable<[WeatherCellViewModel]> {
         locationService.locationObservable
             .flatMap {
-                networkService.getForecast(by: $0.toLocation())
+                weatherProvider.getForecast(by: $0.toLocation())
             }
             .map { weatherContainer -> [String: WeatherList] in
                 let weathersDict = groupWeatherByDay(weatherList: weatherContainer.list)

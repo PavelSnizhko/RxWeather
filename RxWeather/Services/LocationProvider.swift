@@ -17,7 +17,7 @@ protocol LocationProviding {
     var cityObservable: Observable<String> { get }
 }
 
-final class LocationService: NSObject, CLLocationManagerDelegate, LocationProviding {
+final class LocationProvider: NSObject, CLLocationManagerDelegate, LocationProviding {
     
     private let locationManager = CLLocationManager()
     
@@ -110,7 +110,7 @@ final class LocationService: NSObject, CLLocationManagerDelegate, LocationProvid
     }
 }
 
-extension LocationService {
+extension LocationProvider {
     enum LocationError: Error {
         case undefinedCurrentLocation
     }

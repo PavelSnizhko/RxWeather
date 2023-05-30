@@ -19,7 +19,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        let navigationController = UINavigationController(rootViewController: ViewController())
+//        let navigationController = UINavigationController(rootViewController: WeatherContainerViewController())
+        let navigationController = UINavigationController(rootViewController: CityViewController())
         window.rootViewController = navigationController
         self.window = window
         window.makeKeyAndVisible()
@@ -49,6 +50,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
+        (UIApplication.shared.delegate as! AppDelegate).coreDataStack.saveContext()
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.

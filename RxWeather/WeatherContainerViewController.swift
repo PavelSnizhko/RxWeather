@@ -8,20 +8,20 @@
 import UIKit
 import RxSwift
 
-class ViewController: UIViewController {
+class WeatherContainerViewController: UIViewController {
     
-    private let networkService = NetworkService()
-    private let locationService = LocationService()
+    private let weatherProvider = WeatherProvider()
+    private let locationService = LocationProvider()
     
     lazy var weatherViewController: UIViewController = {
-        let viewModel = ForecastViewModel(networkService: networkService, locationService: locationService)
+        let viewModel = ForecastViewModel(weatherProvider: weatherProvider, locationService: locationService)
         let vc = WeatherViewController()
         vc.forecastViewModel = viewModel
         return vc
     }()
     
     //TODO: Make view model container for all of these view models, kind of mini DI
-    lazy var currentWeatherViewModel = CurrentWeatherViewModel(networkService: networkService, locationService: locationService)
+    lazy var currentWeatherViewModel = CurrentWeatherViewModel(weatherProvider: weatherProvider, locationService: locationService)
     
     lazy var currentWeatherViewController: UIViewController =  {
         let vc = CurrentWeatherViewController()
