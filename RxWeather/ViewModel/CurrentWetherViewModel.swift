@@ -14,19 +14,13 @@ protocol CurrentWeatherRequesting {
 
 struct CurrentWeatherViewModel {
     private let weatherProvider: CurrentWeatherRequesting
-    private let locationService: LocationProviding
     let hourlyForecast: Observable<HourlyForecastContainer>
     
     var metricsViewModel: MetricViewModel!
     
-    init(weatherProvider: CurrentWeatherRequesting, locationService: LocationProviding) {
+    init(weatherProvider: CurrentWeatherRequesting, location: Location) {
         self.weatherProvider = weatherProvider
-        self.locationService = locationService
-        hourlyForecast = locationService.locationObservable
-            .flatMap {
-                weatherProvider.getHourlyForecast(by: $0.toLocation())
-            }
-            .share()
+        hourlyForecast = weatherProvider.getHourlyForecast(by: location).share()
     }
     
     private func getWeatherCellViewModels() -> Observable<[WeatherCellViewModel]> {

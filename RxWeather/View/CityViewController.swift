@@ -11,13 +11,22 @@ import RxCocoa
 import CoreData
 
 class CityViewController: UIViewController {
-
+    
     //    private var collectionView: UICollectionView!
     private let tableView = UITableView()
     private var searchBar = UISearchBar()
     
+    private lazy var button: UIButton =  {
+        let button =  UIButton()
+        button.layer.cornerRadius = 10
+        button.backgroundColor = Color.mainPurple.value
+        button.setTitle("Use current location", for: .normal)
+        button.titleLabel?.font = UIFont.NunitoSans(.bold, size: 12)
+        return button
+    }()
+    
     private let viewModel = CityViewModel()
-        
+    
     private var disposeBag: DisposeBag!
     
     override func viewDidLoad() {
@@ -28,6 +37,7 @@ class CityViewController: UIViewController {
     
     
     func setUI() {
+        title = "Weather in cities"
         view.backgroundColor = .white
         
         searchBar.translatesAutoresizingMaskIntoConstraints = false
@@ -50,6 +60,15 @@ class CityViewController: UIViewController {
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.isHidden = false
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 200),
+            button.heightAnchor.constraint(equalToConstant: 50),
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            button.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 20)
+        ])
     }
     
     func setupBindings() {
@@ -60,9 +79,9 @@ class CityViewController: UIViewController {
         
         let itemSelection = tableView.rx.itemSelected.distinctUntilChanged()
         
-        let input = CityViewModel.Input(text: text, itemSelected: itemSelection)
+        let input = CityViewModel.Input(text: text, itemSelected: itemSelection, useCurrentLocation: button.rx.tap.asObservable())
         let output = viewModel.transform(input: input)
-
+        
         disposeBag = DisposeBag {
             
             output.citiesDriver
@@ -81,7 +100,7 @@ class CityViewController: UIViewController {
                 let vc = WeatherContainerViewController(viewModel: weatherViewModel)
                 self?.navigationController?.pushViewController(vc, animated: false)
             })
-
+            
         }
     }
 }

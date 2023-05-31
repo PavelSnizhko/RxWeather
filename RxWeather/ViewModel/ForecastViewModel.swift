@@ -15,12 +15,13 @@ protocol ForecastRequsting {
 
 struct ForecastViewModel {
     private let weatherProvider: ForecastRequsting
-    private let locationService: LocationProviding
+    private let city: String
+    private let location: Location
     
-    init(weatherProvider: ForecastRequsting, locationService: LocationProviding) {
+    init(weatherProvider: ForecastRequsting, location: Location, city: String) {
         self.weatherProvider = weatherProvider
-        self.locationService = locationService
-        
+        self.city = city
+        self.location = location
     }
     
     func groupWeatherByDay(weatherList: [WeatherList]) -> [String : [WeatherList]] {
@@ -53,10 +54,7 @@ struct ForecastViewModel {
     }
     
     func prepareWeatherCellViewModels() -> Observable<[WeatherCellViewModel]> {
-        locationService.locationObservable
-            .flatMap {
-                weatherProvider.getForecast(by: $0.toLocation())
-            }
+        weatherProvider.getForecast(by: location)
             .map { weatherContainer -> [String: WeatherList] in
                 let weathersDict = groupWeatherByDay(weatherList: weatherContainer.list)
                 let maxTempratureWetherDict = filterMaxTemperature(weatherByDay: weathersDict)
@@ -102,7 +100,7 @@ extension ForecastViewModel: ViewModelType {
     
     func transform(input: Input) -> Output {
         let viewModels = input.viewDidLoad.flatMap(prepareWeatherCellViewModels)
-        let location = locationService.cityObservable.asDriver(onErrorJustReturn: "")
+        let location = Observable.just(city).asDriver(onErrorJustReturn: "")
         
         let currentTimeObservable = Observable<Int>.interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
             .map { _ in

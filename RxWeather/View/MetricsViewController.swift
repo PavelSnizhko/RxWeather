@@ -64,9 +64,9 @@ class MetricsViewController: UIViewController {
             let wetherCellViewodels = viewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad)).wetherCellViewodels
             
             wetherCellViewodels.bind(to: collectionView.rx.items(cellIdentifier: MetricCollectionViewCell.defaultReuseIdentifier, cellType: MetricCollectionViewCell.self)) {[weak self] index, viewModel, cell in
-                    cell.viewModel = viewModel
-                    self?.cellSizes.append(viewModel.cellSize)
-                }
+                cell.viewModel = viewModel
+                self?.cellSizes.append(viewModel.cellSize)
+            }
             
             wetherCellViewodels.subscribe(onNext: { [weak self] items in
                 items.forEach { vm in

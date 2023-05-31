@@ -10,18 +10,22 @@ import RxSwift
 
 class WeatherContainerViewModel {
     
-    private let city: City
+    private let location: Location
     
     private let weatherProvider = WeatherProvider()
-    private let locationService = LocationProvider()
-
-    lazy var forecastViewModel = ForecastViewModel(weatherProvider: weatherProvider, locationService: locationService)
     
-    lazy var currentWeatherViewModel = CurrentWeatherViewModel(weatherProvider: weatherProvider, locationService: locationService)
+    private let city: String
+
+    lazy var forecastViewModel = ForecastViewModel(weatherProvider: weatherProvider,
+                                                   location: location,
+                                                   city: city)
+    
+    lazy var currentWeatherViewModel = CurrentWeatherViewModel(weatherProvider: weatherProvider, location: location)
     
     lazy var metricViewModel = MetricViewModel(hourlyForecast: currentWeatherViewModel.hourlyForecast)
 
-    init(city: City) {
+    init(location: Location, city: String) {
+        self.location = location
         self.city = city
     }
 }

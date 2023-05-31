@@ -21,8 +21,8 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate, LocationProvi
     
     private let locationManager = CLLocationManager()
     
-    private let locationSubject = PublishSubject<CLLocationCoordinate2D>()
-    private let currentCity = PublishSubject<String>()
+    private let locationSubject = ReplaySubject<CLLocationCoordinate2D>.create(bufferSize: 1)
+    private let currentCity = ReplaySubject<String>.create(bufferSize: 1)
     
     private let restrictionSubject = PublishSubject<Void>()
     
