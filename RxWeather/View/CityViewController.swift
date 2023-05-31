@@ -12,12 +12,13 @@ import CoreData
 
 class CityViewController: UIViewController {
     
-//    private var collectionView: UICollectionView!
+    //    private var collectionView: UICollectionView!
+    private let tableView = UITableView()
     private var searchBar = UISearchBar()
     
-    let viewModel = CityViewModel()
-    
-    let label = UILabel()
+    private let viewModel = CityViewModel()
+        
+    private var disposeBag: DisposeBag!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,15 +26,30 @@ class CityViewController: UIViewController {
         setupBindings()
     }
     
+    
     func setUI() {
+        view.backgroundColor = .white
+        
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(searchBar)
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            searchBar.heightAnchor.constraint(equalToConstant: 100)
+            searchBar.heightAnchor.constraint(equalToConstant: 50)
         ])
+        
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        tableView.isHidden = false
     }
     
     func setupBindings() {
@@ -41,18 +57,28 @@ class CityViewController: UIViewController {
             .orEmpty // Converts the optional text to a non-optional
             .debounce(.milliseconds(500), scheduler: MainScheduler.instance) // Adds a debounce to avoid rapid changes
             .distinctUntilChanged() // Filters out duplicate consecutive elements
-            .filter { $0.count >= 2 } // Filter text with two or more letters
         
         let input = CityViewModel.Input(text: text)
         let output = viewModel.transform(input: input)
-//
-//        disposeBag = DisposeBag {
-//
-//        }
+
+        disposeBag = DisposeBag {
+            output.citiesDriver
+                .drive(tableView.rx.items(cellIdentifier: "Cell", cellType: UITableViewCell.self)) { (_, city, cell) in
+                    guard let name = city.name,
+                          let country = city.country else {
+                        return
+                    }
+                    cell.textLabel?.text = "\(name), \(country)"
+                }
+            
+            output.isNeededToShowCityListDriver
+                .drive(tableView.rx.isHidden)
+        }
     }
 }
 
 class CityViewModel {
+    
     typealias CityModel = Cities.City
     
     private let cityProvider = CityProvider()
@@ -97,12 +123,17 @@ class CityViewModel {
 }
 
 extension CityViewModel: ViewModelType {
+    enum CityError: String, Error {
+        case notFoundCity = "There aren't cities"
+    }
+    
     struct Input {
         let text: Observable<String>
     }
     
     struct Output {
-//        let cities: [City]
+        let isNeededToShowCityListDriver: Driver<Bool>
+        let citiesDriver: Driver<[City]>
     }
     
     func transform(input: Input) -> Output {
@@ -114,37 +145,34 @@ extension CityViewModel: ViewModelType {
                 .disposed(by: disposeBag)
         }
         
-        input.text
+        let isNeededToShowCityListDriver = input.text
+            .map { $0.isEmpty }
+            .asDriver(onErrorJustReturn: false)
+        
+        
+        let citiesDriver = input.text
+            .filter { $0.count >= 2 }
             .flatMap { [unowned self] text in
                 self.searchText(searchText: text)
             }
-            .subscribe(onNext: { _ in
-                print("Finish")
-            })
-            .disposed(by: disposeBag)
+            .asDriver(onErrorJustReturn: [])
         
-        return .init()
+        return .init(isNeededToShowCityListDriver: isNeededToShowCityListDriver, citiesDriver: citiesDriver)
     }
     
     func searchText(searchText: String) -> Observable<[City]> {
         var predicate: NSPredicate = NSPredicate()
         predicate = NSPredicate(format: "name contains[c] '\(searchText)'")
-                
+        
         let fetchRequest = City.fetchRequest()
         fetchRequest.predicate = predicate
         
         do {
             let cities = try context.fetch(fetchRequest)
-            print(cities)
             return .just(cities)
-        } catch let error as NSError {
-            print("Could not fetch. \(error)")
+        } catch {
             return .error(CityError.notFoundCity)
         }
         
     }
-}
-
-enum CityError: String, Error {
-    case notFoundCity = "There aren't no cities"
 }
