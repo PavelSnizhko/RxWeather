@@ -8,31 +8,51 @@
 import UIKit
 import RxSwift
 
-class WeatherContainerViewController: UIViewController {
+class WeatherContainerViewModel {
+    
+    private let city: City
     
     private let weatherProvider = WeatherProvider()
     private let locationService = LocationProvider()
+
+    lazy var forecastViewModel = ForecastViewModel(weatherProvider: weatherProvider, locationService: locationService)
+    
+    lazy var currentWeatherViewModel = CurrentWeatherViewModel(weatherProvider: weatherProvider, locationService: locationService)
+    
+    lazy var metricViewModel = MetricViewModel(hourlyForecast: currentWeatherViewModel.hourlyForecast)
+
+    init(city: City) {
+        self.city = city
+    }
+}
+
+class WeatherContainerViewController: UIViewController {
+    private let viewModel: WeatherContainerViewModel
+    
+    init(viewModel: WeatherContainerViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     lazy var weatherViewController: UIViewController = {
-        let viewModel = ForecastViewModel(weatherProvider: weatherProvider, locationService: locationService)
         let vc = WeatherViewController()
-        vc.forecastViewModel = viewModel
+        vc.forecastViewModel = viewModel.forecastViewModel
         return vc
     }()
     
-    //TODO: Make view model container for all of these view models, kind of mini DI
-    lazy var currentWeatherViewModel = CurrentWeatherViewModel(weatherProvider: weatherProvider, locationService: locationService)
-    
     lazy var currentWeatherViewController: UIViewController =  {
         let vc = CurrentWeatherViewController()
-        vc.viewModel = currentWeatherViewModel
+        vc.viewModel = viewModel.currentWeatherViewModel
         return vc
     }()
     
     lazy var metricViewController: UIViewController = {
-        let viewModel = MetricViewModel(hourlyForecast: currentWeatherViewModel.hourlyForecast)
         let vc = MetricsViewController()
-        vc.viewModel = viewModel
+        vc.viewModel = viewModel.metricViewModel
         return vc
     }()
     

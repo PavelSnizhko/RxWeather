@@ -57,6 +57,7 @@
 		E8B27AC52A26376300A8860B /* City+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B27AC32A26376300A8860B /* City+CoreDataClass.swift */; };
 		E8B27AC62A26376300A8860B /* City+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B27AC42A26376300A8860B /* City+CoreDataProperties.swift */; };
 		E8B27AC92A26526900A8860B /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B27AC82A26526900A8860B /* Storage.swift */; };
+		E8B27ACB2A270E6500A8860B /* CityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B27ACA2A270E6500A8860B /* CityViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -109,6 +110,7 @@
 		E8B27AC32A26376300A8860B /* City+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "City+CoreDataClass.swift"; sourceTree = "<group>"; };
 		E8B27AC42A26376300A8860B /* City+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "City+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		E8B27AC82A26526900A8860B /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
+		E8B27ACA2A270E6500A8860B /* CityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +205,7 @@
 				E827E13F2A1B42AD00AA107B /* CurrentWeatherCellViewModel.swift */,
 				E8B27A9E2A20AE4500A8860B /* CurrentWetherViewModel.swift */,
 				E8B27AA02A20B43600A8860B /* ForecastViewModel.swift */,
+				E8B27ACA2A270E6500A8860B /* CityViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -410,6 +413,7 @@
 				E8B27AC62A26376300A8860B /* City+CoreDataProperties.swift in Sources */,
 				E8B27AC92A26526900A8860B /* Storage.swift in Sources */,
 				E827E15A2A1F657000AA107B /* NetworkService+Rx.swift in Sources */,
+				E8B27ACB2A270E6500A8860B /* CityViewModel.swift in Sources */,
 				E827E14A2A1BD64B00AA107B /* MetricViewModel.swift in Sources */,
 				E8B27AA82A21C2EC00A8860B /* DateFormatHelper.swift in Sources */,
 				E827E1462A1BCA0E00AA107B /* MetricCollectionViewCell.swift in Sources */,
