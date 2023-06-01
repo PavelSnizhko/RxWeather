@@ -101,6 +101,12 @@ class CityViewController: UIViewController {
                 self?.navigationController?.pushViewController(vc, animated: false)
             })
             
+            output.isLocationButtonHiddenDriver.drive(onNext: { [weak button] isHidden in
+                UIView.animate(withDuration: 0.3) {
+                    button?.isHidden = isHidden
+                }
+            })
+            
         }
     }
 }

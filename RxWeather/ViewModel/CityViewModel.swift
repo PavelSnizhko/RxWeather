@@ -73,6 +73,7 @@ extension CityViewModel: ViewModelType {
         let isNeededToShowCityListDriver: Driver<Bool>
         let citiesDriver: Driver<[City]>
         let showWeatherVC: Observable<WeatherContainerViewModel>
+        let isLocationButtonHiddenDriver: Driver<Bool>
     }
     
     func transform(input: Input) -> Output {
@@ -88,6 +89,9 @@ extension CityViewModel: ViewModelType {
             .map { $0.isEmpty }
             .asDriver(onErrorJustReturn: false)
         
+        let isLocationButtonHiddenDriver = input.text.map {
+            !$0.isEmpty
+        }.asDriver(onErrorJustReturn: false)
         
         let citiesDriver = input.text
             .filter { $0.count >= 2 }
@@ -96,8 +100,16 @@ extension CityViewModel: ViewModelType {
             }
             .asDriver(onErrorJustReturn: [])
         
+        let viewModelObservable = getWeatherViewModel(itemSelected: input.itemSelected, useCurrentLocation: input.useCurrentLocation)
         
-        let cityBySelection = input.itemSelected
+        return .init(isNeededToShowCityListDriver: isNeededToShowCityListDriver,
+                     citiesDriver: citiesDriver,
+                     showWeatherVC: viewModelObservable,
+                     isLocationButtonHiddenDriver: isLocationButtonHiddenDriver)
+    }
+    
+    private func getWeatherViewModel(itemSelected: Observable<IndexPath>, useCurrentLocation: Observable<Void>) -> Observable<WeatherContainerViewModel> {
+        let cityBySelection = itemSelected
             .compactMap { [weak self] indexPath in
                 self?.searchingCities[indexPath.row]
             }
@@ -112,21 +124,22 @@ extension CityViewModel: ViewModelType {
             return Location(latitude: latitude, longitude: longitude)
         })
         
-        let cityByCurrentLocation = input.useCurrentLocation.flatMap { [currentLocationProvider] _ in
-            currentLocationProvider.cityObservable
-        }
+        let cityByCurrentLocation = useCurrentLocation
+            .flatMap { [currentLocationProvider] _ in
+                currentLocationProvider.cityObservable
+            }
         
         let cityStringObservable = Observable.merge(cityBySelection.compactMap(\.name), cityByCurrentLocation)
         
-        let currentLocation = input.useCurrentLocation.flatMap { [currentLocationProvider] _ in
+        let currentLocation = useCurrentLocation.flatMap { [currentLocationProvider] _ in
             currentLocationProvider.locationObservable
                 .map { $0.toLocation() }
         }
         
-        let showWeatherVC = Observable.merge(input.itemSelected.map { _ in }, input.useCurrentLocation)
+        let showWeatherVC = Observable.merge(itemSelected.map { _ in }, useCurrentLocation)
         
         let locationObservable = Observable.merge(locationByCity, currentLocation)
-
+        
         let weatherViewModel = Observable.combineLatest(locationObservable, cityStringObservable) { location, city in
             WeatherContainerViewModel(location: location, city: city)
         }
@@ -134,10 +147,7 @@ extension CityViewModel: ViewModelType {
         let viewModelObservable = showWeatherVC.flatMap { _ in
             weatherViewModel
         }
-        
-        return .init(isNeededToShowCityListDriver: isNeededToShowCityListDriver,
-                     citiesDriver: citiesDriver,
-                     showWeatherVC: viewModelObservable)
+        return viewModelObservable
     }
     
     func searchText(searchText: String) -> Observable<[City]> {
