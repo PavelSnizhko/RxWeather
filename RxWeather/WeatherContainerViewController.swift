@@ -72,6 +72,7 @@ class WeatherContainerViewController: UIViewController {
         super.viewDidLoad()
         
         addChildrenViewControllers()
+        navigationController?.isNavigationBarHidden = false
         // Do any additional setup after loading the view.
     }
     

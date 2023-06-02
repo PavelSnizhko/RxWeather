@@ -56,10 +56,13 @@ class DefaultCityStorageManager: DefaultCityManagable {
     }
     
     func removeCity(_ city: City) {
-        guard let index = defaultCities.firstIndex(of: city) else {
+        guard let index = defaultCities.firstIndex(where: { $0.id == city.id }) else {
             return
         }
-        defaultCities.remove(at: index)
+        
+        var cities = defaultCities
+        cities.remove(at: index)
+        defaultCities = cities
     }
     
     func addCitiesToStorage(cities: [CityModel]) {

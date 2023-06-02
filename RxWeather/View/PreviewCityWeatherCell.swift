@@ -9,7 +9,11 @@ import UIKit
 
 struct PreviewCityWeatherViewModel {
     let weatherCellViewModel: WeatherCellViewModel
-    let cityName: String
+    let city: City
+    
+    var cityName: String? {
+        city.name
+    }
 }
 
 class PreviewCityWeatherCell: UITableViewCell, ReusableView {

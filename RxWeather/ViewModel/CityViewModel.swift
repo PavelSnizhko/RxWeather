@@ -31,28 +31,41 @@ class CityViewModel {
         .disposed(by: disposeBag)
     }
     
-    func getPreviewCitiesIfNeeded() -> Observable<[PreviewCityWeatherViewModel]> {
+    func getPreviewCitiesIfNeeded() {
         let currentWeatherViewModels = cityManager.defaultCities
-            .compactMap({ city -> (String, Location)? in
-                guard let location = city.location, let name = city.name else {
+            .compactMap({ city -> (City, Location)? in
+                guard let location = city.location else {
                     return nil
                 }
                 
-                return (name, location)
+                return (city, location)
             })
             .map { (name, location) in
                 (name, CurrentWeatherViewModel(weatherProvider: weatherProvider, location: location))
             }
         
-        let observables = currentWeatherViewModels.map { (name, vm) in
+        let observables = currentWeatherViewModels.map { (city, vm) in
             vm.getWeatherCellViewModels()
                 .compactMap(\.first)
                 .map {
-                    PreviewCityWeatherViewModel(weatherCellViewModel: $0, cityName: name)
+                    PreviewCityWeatherViewModel(weatherCellViewModel: $0, city: city)
                 }
         }
         
-        return Observable.combineLatest(observables)
+        Observable.combineLatest(observables)
+            .subscribe(onNext: { [weak self] viewModels in
+                self?.cityWeatherViewModelSubject.onNext(viewModels)
+            }).disposed(by: disposeBag)
+        
+    }
+    
+    func removeItem(at indexPath: IndexPath) {
+        guard var viewModels = try? cityWeatherViewModelSubject.value() else { return }
+        
+        let viewModel = viewModels.remove(at: indexPath.row)
+        
+        cityWeatherViewModelSubject.onNext(viewModels)
+        cityManager.removeCity(viewModel.city)
         
     }
 }
@@ -63,6 +76,7 @@ extension CityViewModel: ViewModelType {
         let text: Observable<String>
         let itemSelected: Observable<IndexPath>
         let useCurrentLocation: Observable<Void>
+        let itemDeleted: Observable<IndexPath>
     }
     
     struct Output {
@@ -82,6 +96,10 @@ extension CityViewModel: ViewModelType {
                 .disposed(by: disposeBag)
         }
         
+        input.itemDeleted.subscribe(onNext: { [weak self] indexPath in
+            self?.removeItem(at: indexPath)
+        })
+        .disposed(by: disposeBag)
         
         let isNeededToShowCityListDriver = input.text
             .map { $0.isEmpty }
@@ -89,7 +107,8 @@ extension CityViewModel: ViewModelType {
         
         let isLocationButtonHiddenDriver = input.text.map {
             !$0.isEmpty
-        }.asDriver(onErrorJustReturn: false)
+        }
+        .asDriver(onErrorJustReturn: false)
         
         let citiesDriver = input.text
             .filter { $0.count >= 2 }
@@ -109,8 +128,8 @@ extension CityViewModel: ViewModelType {
                                                       useCurrentLocation: input.useCurrentLocation,
                                                       cityBySelection: cityBySelection)
         
-        let viewModels = getPreviewCitiesIfNeeded()
-        let previewCitiesDriver = viewModels.observe(on: MainScheduler.instance).asDriver(onErrorJustReturn: [])
+        getPreviewCitiesIfNeeded()
+        let previewCitiesDriver = cityWeatherViewModelSubject.asObservable().asDriver(onErrorJustReturn: [])
         
         return .init(isNeededToShowCityListDriver: isNeededToShowCityListDriver,
                      citiesDriver: citiesDriver,

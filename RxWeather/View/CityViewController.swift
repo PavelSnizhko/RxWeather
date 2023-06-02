@@ -10,7 +10,7 @@ import RxSwift
 import RxCocoa
 import CoreData
 
-class CityViewController: UIViewController {
+class CityViewController: UIViewController, UITableViewDelegate {
     
     private let searchResultTableView = UITableView()
     private var searchBar = UISearchBar()
@@ -33,7 +33,6 @@ class CityViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupBindings()
     }
     
     private var disposeBag: DisposeBag!
@@ -41,6 +40,7 @@ class CityViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
+        setupBindings()
     }
     
     private func setCitiesTableView() {
@@ -129,13 +129,22 @@ class CityViewController: UIViewController {
         
         let itemSelection = searchResultTableView.rx.itemSelected.distinctUntilChanged()
         
-        let input = CityViewModel.Input(text: text, itemSelected: itemSelection, useCurrentLocation: button.rx.tap.asObservable())
+        let itemDeleted = citiesTableView.rx.itemDeleted.asObservable()
+
+        let input = CityViewModel.Input(text: text,
+                                        itemSelected: itemSelection,
+                                        useCurrentLocation: button.rx.tap.asObservable(),
+                                        itemDeleted: itemDeleted)
+        
         let output = viewModel.transform(input: input)
         
 //        setInitialLocationButtonPosition(isCityAdded: output.isCityAdded)
         
         disposeBag = DisposeBag {
+            citiesTableView.rx.setDelegate(self)
             
+            
+//            citiesTableView.rx.itemDeleted
             output.citiesDriver
                 .drive(searchResultTableView.rx.items(cellIdentifier: "Cell", cellType: UITableViewCell.self)) { (_, city, cell) in
                     guard let name = city.name,
