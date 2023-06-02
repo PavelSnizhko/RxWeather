@@ -60,13 +60,6 @@ class CurrentWeatherViewController: UIViewController {
         return stackView
     }()
     
-    private var weatherData: [CurrentWeatherCellViewModel] = [
-        .init(weatherImage: UIImage(named: "Sun cloud mid rain")!, timeString: "06:00", temperature: "23°C"),
-        .init(weatherImage: UIImage(named: "Big rain drops")!, timeString: "08:00", temperature: "26°C"),
-        .init(weatherImage: UIImage(named: "Thunderstorm")!, timeString: "10:00", temperature: "28°C"),
-        .init(weatherImage: UIImage(named: "Thunderstorm")!, timeString: "10:00", temperature: "28°C")
-    ]
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()

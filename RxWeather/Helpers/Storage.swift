@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @propertyWrapper
 struct Storage<T: Codable> {
@@ -20,11 +21,24 @@ struct Storage<T: Codable> {
     var wrappedValue: T {
         get {
             // Read value from UserDefaults
-            return UserDefaults.standard.object(forKey: key) as? T ?? defaultValue
+            guard let data = UserDefaults.standard.object(forKey: key) as? Data else {
+                // Return defaultValue when no data in UserDefaults
+                return defaultValue
+            }
+            
+            // Convert data to the desire data type
+            let decoder = JSONDecoder()
+            decoder.userInfo[.managedObjectContext] = (UIApplication.shared.delegate as! AppDelegate).coreDataStack.managedContext //TODO: wrong way
+            let value = try? decoder.decode(T.self, from: data)
+            return value ?? defaultValue
         }
+        
         set {
+            // Convert newValue to data
+            let data = try? JSONEncoder().encode(newValue)
+            
             // Set value to UserDefaults
-            UserDefaults.standard.set(newValue, forKey: key)
+            UserDefaults.standard.set(data, forKey: key)
         }
     }
 }

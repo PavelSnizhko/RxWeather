@@ -23,7 +23,7 @@ struct CurrentWeatherViewModel {
         hourlyForecast = weatherProvider.getHourlyForecast(by: location).share()
     }
     
-    private func getWeatherCellViewModels() -> Observable<[WeatherCellViewModel]> {
+    func getWeatherCellViewModels() -> Observable<[WeatherCellViewModel]> {
         return hourlyForecast
             .map { currentWeatherContainer -> [WeatherCellViewModel] in
                 currentWeatherContainer.hourly.compactMap { horlyWeather -> WeatherCellViewModel? in
