@@ -26,7 +26,7 @@ class CityViewModel {
     
     private func addCityToDefaults(cityObservable: Observable<City>) {
         cityObservable.subscribe(onNext: { [cityManager] city in
-            cityManager.addCity(city)
+            cityManager.markCitySelected(city)
         })
         .disposed(by: disposeBag)
     }
@@ -65,7 +65,7 @@ class CityViewModel {
         let viewModel = viewModels.remove(at: indexPath.row)
         
         cityWeatherViewModelSubject.onNext(viewModels)
-        cityManager.removeCity(viewModel.city)
+        cityManager.removeCityFromSelected(viewModel.city)
         
     }
 }
@@ -147,7 +147,7 @@ extension CityViewModel: ViewModelType {
                 currentLocationProvider.cityObservable
             }
         
-        let cityStringObservable = Observable.merge(cityBySelection.compactMap(\.name), cityByCurrentLocation)
+        let cityStringObservable = Observable.merge(cityBySelection.compactMap(\.name), cityByCurrentLocation).debug("cityStringObservable")
         
         let currentLocation = useCurrentLocation.flatMap { [currentLocationProvider] _ in
             currentLocationProvider.locationObservable
@@ -156,16 +156,13 @@ extension CityViewModel: ViewModelType {
         
         let showWeatherVC = Observable.merge(itemSelected.map { _ in }, useCurrentLocation)
         
-        let locationObservable = Observable.merge(locationByCity, currentLocation)
+        let locationObservable = Observable.merge(locationByCity, currentLocation).debug("locationObservable")
         
-        let weatherViewModel = Observable.combineLatest(locationObservable, cityStringObservable) { location, city in
+        let weatherViewModel = Observable.zip(locationObservable, cityStringObservable) { location, city in
             WeatherContainerViewModel(location: location, city: city)
         }
         
-        let viewModelObservable = showWeatherVC.flatMap { _ in
-            weatherViewModel
-        }
-        return viewModelObservable
+        return weatherViewModel
     }
     
 }

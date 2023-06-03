@@ -2,7 +2,7 @@
 //  City+CoreDataProperties.swift
 //  RxWeather
 //
-//  Created by Павло Сніжко on 30.05.2023.
+//  Created by Павло Сніжко on 03.06.2023.
 //
 //
 
@@ -17,9 +17,10 @@ extension City {
     }
 
     @NSManaged public var country: String?
-    @NSManaged public var name: String?
     @NSManaged public var lat: String?
     @NSManaged public var lng: String?
+    @NSManaged public var name: String?
+    @NSManaged public var isSelected: Bool
 
 }
 

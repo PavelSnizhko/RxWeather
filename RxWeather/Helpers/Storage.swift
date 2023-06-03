@@ -28,7 +28,6 @@ struct Storage<T: Codable> {
             
             // Convert data to the desire data type
             let decoder = JSONDecoder()
-            decoder.userInfo[.managedObjectContext] = (UIApplication.shared.delegate as! AppDelegate).coreDataStack.managedContext //TODO: wrong way
             let value = try? decoder.decode(T.self, from: data)
             return value ?? defaultValue
         }

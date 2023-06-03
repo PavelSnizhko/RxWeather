@@ -16,8 +16,8 @@ protocol DefaultCityManagable {
     var defaultCities: [City] { get }
     var isCitiesLoaded: Bool { get }
 
-    func addCity(_ city: City)
-    func removeCity(_ city: City)
+    func markCitySelected(_ city: City)
+    func removeCityFromSelected(_ city: City)
     func addCitiesToStorage(cities: [CityModel])
     func searchText(searchText: String) -> Observable<[City]>
     func getSearchingCity(for index: Int) -> City
@@ -26,8 +26,9 @@ protocol DefaultCityManagable {
 
 class DefaultCityStorageManager: DefaultCityManagable {
     
-    @Storage(key: "Cities", defaultValue: [])
-    private(set) var defaultCities: [City]
+    var defaultCities: [City] {
+        fetchSelectedCities()
+    }
     
     @Storage(key: "isCitiesLoaded", defaultValue: false)
     private(set) var isCitiesLoaded: Bool
@@ -36,33 +37,48 @@ class DefaultCityStorageManager: DefaultCityManagable {
     private var cities: [City] = []
 
     private let context = (UIApplication.shared.delegate as! AppDelegate).coreDataStack.managedContext
-
-    var uniqueCities: Set<City> {
-        Set<City>(defaultCities)
-    }
     
     func getSearchingCity(for index: Int) -> City {
         searchingCities[index]
     }
     
-    func addCity(_ city: City) {
-        guard !uniqueCities.contains(city) else {
-            return
-        }
+    func markCitySelected(_ city: City) {
+        city.isSelected.toggle()
         
-        var cities = defaultCities
-        cities.append(city)
-        defaultCities = cities
+        do {
+            try context.save()
+        } catch {
+            print("Error saving to Core Data: \(error)")
+        }
     }
     
-    func removeCity(_ city: City) {
-        guard let index = defaultCities.firstIndex(where: { $0.id == city.id }) else {
-            return
+    func fetchSelectedCities() -> [City] {
+        let fetchRequest = City.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "isSelected == %@", NSNumber(value: true))
+        
+        do {
+            let cities = try context.fetch(fetchRequest)
+            return cities
+        } catch {
+            print("Error fetching city: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    func removeCityFromSelected(_ city: City) {
+        do {
+            let city = try context.existingObject(with: city.objectID)
+        } catch {
+            print("Error fetching city: \(error.localizedDescription)")
         }
         
-        var cities = defaultCities
-        cities.remove(at: index)
-        defaultCities = cities
+        city.isSelected.toggle()
+        
+        do {
+            try context.save()
+        } catch {
+            print("Error saving to Core Data: \(error)")
+        }
     }
     
     func addCitiesToStorage(cities: [CityModel]) {
@@ -73,6 +89,7 @@ class DefaultCityStorageManager: DefaultCityManagable {
             newCity.name = city.name
             newCity.lat = city.lat
             newCity.lng = city.lng
+            newCity.isSelected = false
             
             self.cities.append(newCity)
         }
