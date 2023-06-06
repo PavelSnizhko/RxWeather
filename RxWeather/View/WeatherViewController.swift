@@ -29,13 +29,14 @@ class WeatherViewController: UIViewController {
     private let locationLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.NunitoSans(.bold, size: 24)
+        label.isHidden = true
         return label
     }()
     
     private let timeLabel = {
         let label = UILabel()
         label.font = UIFont.NunitoSans(.semibold, size: 16)
-        label.text = ""
+        label.isHidden = true
         return label
     }()
     
@@ -43,6 +44,7 @@ class WeatherViewController: UIViewController {
         let stackview = UIStackView(arrangedSubviews: [locationLabel, timeLabel])
         stackview.axis = .vertical
         stackview.alignment = .center
+        stackview.isHidden = true
         return stackview
     }()
     
@@ -56,8 +58,16 @@ class WeatherViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = .clear
+        collectionView.isHidden = true
         // Set up collection view properties, such as content inset, delegate, etc.
         return collectionView
+    }()
+    
+    private let loaderView: UIActivityIndicatorView = {
+        let loader = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
+        loader.translatesAutoresizingMaskIntoConstraints = false
+        loader.hidesWhenStopped = true
+        return loader
     }()
     
     override func viewDidLoad() {
@@ -96,9 +106,15 @@ class WeatherViewController: UIViewController {
             collectionView.heightAnchor.constraint(equalToConstant: 300),
         ])
         
+        view.addSubview(loaderView)
+        NSLayoutConstraint.activate([
+            loaderView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loaderView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+
     }
     
-    func setupBindings() {
+    private func setupBindings() {
         disposeBag = DisposeBag {
             let output = forecastViewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad))
             
@@ -109,6 +125,21 @@ class WeatherViewController: UIViewController {
             
             output.location.drive(locationLabel.rx.text)
             output.time.drive(timeLabel.rx.text)
+            
+            output.loadingDriver.drive { [weak self] isLoading in
+                self?.processLoading(with: isLoading)
+            }
+        }
+    }
+    
+    private func processLoading(with isLoading: Bool) {
+        let viewsToShowOrHide = [locationLabel, timeLabel, geoMetaStackView, collectionView]
+        if !isLoading {
+            loaderView.stopAnimating()
+            viewsToShowOrHide.forEach { $0.isHidden = false }
+        } else {
+            loaderView.startAnimating()
+            viewsToShowOrHide.forEach { $0.isHidden = true }
         }
     }
     

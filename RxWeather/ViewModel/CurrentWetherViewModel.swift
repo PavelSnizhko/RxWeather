@@ -6,6 +6,7 @@
 //
 
 import RxSwift
+import RxCocoa
 import UIKit
 
 protocol CurrentWeatherRequesting {
@@ -18,6 +19,12 @@ struct CurrentWeatherViewModel {
     
     var metricsViewModel: MetricViewModel!
     
+    private let activityIndicator = ActivityIndicator()
+    
+    var isLoadingFinished: Observable<Bool> {
+        activityIndicator.asObservable()
+    }
+
     init(weatherProvider: CurrentWeatherRequesting, location: Location) {
         self.weatherProvider = weatherProvider
         hourlyForecast = weatherProvider.getHourlyForecast(by: location).share()
@@ -38,7 +45,7 @@ struct CurrentWeatherViewModel {
                     
                     return WeatherCellViewModel(imageURL: iamgeURL,
                                                 temperature: String(horlyWeather.temp),
-                                                description: "",
+                                                description: weather.description?.capitalized ?? "",
                                                 dateString: dateString)
                 }
                 .sorted(by: { firstViewModel, secondViewModel in
@@ -50,16 +57,8 @@ struct CurrentWeatherViewModel {
                     return firstDate < secondDate
                 })
             }
-    }
-    
-    private func makeImageURL(from iconName: String) -> URL {
-        guard let url = URL(string: "https://openweathermap.org/img/wn/\(iconName)@2x.png") else {
-            assertionFailure("Broken URL")
-            return URL(string: "")!
+            .trackActivity(activityIndicator)
         }
-        
-        return url
-    }
 }
 
 extension CurrentWeatherViewModel: ViewModelType {
@@ -69,11 +68,13 @@ extension CurrentWeatherViewModel: ViewModelType {
     
     struct Output {
         let wetherCellViewodels: Observable<[WeatherCellViewModel]>
+        let loadingDriver: Driver<Bool>
     }
     
     func transform(input: Input) -> Output {
         
-        let output = Output(wetherCellViewodels: input.viewDidLoad.flatMap(getWeatherCellViewModels))
+        let output = Output(wetherCellViewodels: input.viewDidLoad.flatMap(getWeatherCellViewModels),
+                            loadingDriver: isLoadingFinished.asDriver(onErrorJustReturn: false))
         
         return output
     }

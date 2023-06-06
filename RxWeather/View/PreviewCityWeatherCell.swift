@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 
 final class PreviewCityWeatherCell: UITableViewCell, ReusableView {
     
@@ -29,6 +30,14 @@ final class PreviewCityWeatherCell: UITableViewCell, ReusableView {
         return label
     }()
     
+    private let weatherImage: UIImageView = {
+        let weatherImage = UIImageView()
+        weatherImage.contentMode = .scaleAspectFit
+        return weatherImage
+    }()
+    
+    private let disposeBag = DisposeBag()
+    
     var viewModel: PreviewCityWeatherViewModel! {
         didSet {
             setupBindings()
@@ -40,9 +49,7 @@ final class PreviewCityWeatherCell: UITableViewCell, ReusableView {
         
         contentView.backgroundColor = Color.secondaryForegroundColor.value
         
-        addSubview(temperatureLabel)
-        addSubview(titleLabel)
-        addSubview(descriptionLabel)
+        [temperatureLabel, titleLabel, descriptionLabel, weatherImage].forEach(self.addSubview)
         
         setupConstraints()
     }
@@ -55,18 +62,24 @@ final class PreviewCityWeatherCell: UITableViewCell, ReusableView {
         temperatureLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        weatherImage.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            temperatureLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            temperatureLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             temperatureLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: temperatureLabel.leadingAnchor, constant: -8),
             
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
+//            descriptionLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
+            
+            weatherImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            weatherImage.topAnchor.constraint(equalTo: temperatureLabel.bottomAnchor),
+            weatherImage.heightAnchor.constraint(equalToConstant: 50),
+            weatherImage.widthAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -74,6 +87,7 @@ final class PreviewCityWeatherCell: UITableViewCell, ReusableView {
         temperatureLabel.text = viewModel.weatherCellViewModel.celciusTemperature
         descriptionLabel.text = viewModel.weatherCellViewModel.description
         titleLabel.text = viewModel.cityName
+        viewModel.weatherCellViewModel.weatherImage.bind(to: weatherImage.rx.image).disposed(by: disposeBag)
     }
     
 }

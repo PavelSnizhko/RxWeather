@@ -1,7 +1,7 @@
 import UIKit
 import RxSwift
 
-class WeatherCell: UICollectionViewCell {
+final class WeatherCell: UICollectionViewCell {
     static let reuseIdentifier = "WeatherCell"
     
     var viewModel: WeatherCellViewModel! {

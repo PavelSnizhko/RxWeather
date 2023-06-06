@@ -49,6 +49,7 @@ class CurrentWeatherViewController: UIViewController {
         let label = UILabel()
         label.text = "Next 7 Days >"
         label.font = UIFont.NunitoSans(.bold, size: 16)
+        label.isHidden = true
         return label
     }()
     
@@ -60,6 +61,13 @@ class CurrentWeatherViewController: UIViewController {
         return stackView
     }()
     
+    private let loaderView: UIActivityIndicatorView = {
+        let loader = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
+        loader.translatesAutoresizingMaskIntoConstraints = false
+        loader.hidesWhenStopped = true
+        return loader
+    }()
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
@@ -92,19 +100,38 @@ class CurrentWeatherViewController: UIViewController {
         NSLayoutConstraint.activate([headerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 30),
                                      headerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -30),
                                      headerView.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor, constant: -90),])
+        
+        view.addSubview(loaderView)
+        NSLayoutConstraint.activate([
+            loaderView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loaderView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
     
     func setupBindings() {
         disposeBag = DisposeBag {
-            viewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad))
-                .wetherCellViewodels
+            let output = viewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad))
+            
+            output.wetherCellViewodels
                 .bind(to: collectionView.rx.items(cellIdentifier: CurrentWeatherCell.reuseIdentifier, cellType: CurrentWeatherCell.self)) { index, viewModel, cell in
                 cell.viewModel = viewModel
             }
             
+            output.loadingDriver.drive(onNext: { [weak self] isLoaded in
+                self?.processLoading(with: isLoaded)
+            })
+            
         }
     }
     
+    private func processLoading(with isLoading: Bool) {
+        if !isLoading {
+            loaderView.stopAnimating()
+        } else {
+            loaderView.startAnimating()
+        }
+    }
+
 }
 
 extension CurrentWeatherViewController: UICollectionViewDelegate {

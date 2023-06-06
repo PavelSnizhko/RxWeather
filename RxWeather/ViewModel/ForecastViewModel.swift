@@ -18,6 +18,8 @@ struct ForecastViewModel {
     private let city: String
     private let location: Location
     
+    private let activityIndicator = ActivityIndicator()
+    
     init(weatherProvider: ForecastRequsting, location: Location, city: String) {
         self.weatherProvider = weatherProvider
         self.city = city
@@ -83,6 +85,7 @@ struct ForecastViewModel {
                     return firstDate < secondDate
                 }
             }
+            .trackActivity(activityIndicator)
     }
     
     
@@ -97,16 +100,21 @@ extension ForecastViewModel: ViewModelType {
         let wetherCellViewodels: Observable<[WeatherCellViewModel]>
         let location: Driver<String>
         let time: Driver<String>
+        let loadingDriver: Driver<Bool>
     }
     
     func transform(input: Input) -> Output {
         let viewModels = input.viewDidLoad.flatMap(prepareWeatherCellViewModels)
-        let location = Observable.just(city).asDriver(onErrorJustReturn: "")
+        let location = Observable.just(city)
+            .asDriver(onErrorJustReturn: "")
         
+        let initialTime = Int(Date().timeIntervalSince1970)
+
         let currentTimeObservable = Observable<Int>.interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
-            .map { _ in
-                return Int(Date().timeIntervalSince1970)
+            .map {
+                initialTime + $0
             }
+            .startWith(initialTime)
         
         let time = currentTimeObservable
             .map{currentTime -> String in
@@ -114,7 +122,10 @@ extension ForecastViewModel: ViewModelType {
             }
             .asDriver(onErrorJustReturn: "")
         
-        let output = Output(wetherCellViewodels: viewModels, location: location, time: time)
+        let output = Output(wetherCellViewodels: viewModels,
+                            location: location,
+                            time: time,
+                            loadingDriver: activityIndicator.asDriver(onErrorJustReturn: false))
         
         return output
     }

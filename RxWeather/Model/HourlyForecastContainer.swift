@@ -47,6 +47,7 @@ extension Hourly {
     struct Weather: Codable {
         let id: Int
         let icon: String
+        let description: String?
     }
     
 }
