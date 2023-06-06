@@ -29,18 +29,23 @@ class CityViewController: UIViewController, UITableViewDelegate {
         return button
     }()
     
-    private let viewModel = CityViewModel()
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
+    private let viewModel: CityViewModel
     
     private var disposeBag: DisposeBag!
+    
+    init(viewModel: CityViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+        setupBindings()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
-        setupBindings()
     }
     
     private func setCitiesTableView() {
@@ -169,11 +174,6 @@ class CityViewController: UIViewController, UITableViewDelegate {
             output.isNeededToShowCityListDriver.drive(onNext: { [weak self] isNeedToHideCityList in
                 self?.searchResultTableView.isHidden = isNeedToHideCityList
                 self?.citiesTableView.isHidden = !isNeedToHideCityList
-            })
-            
-            output.showWeatherVC.subscribe(onNext: { [weak self] weatherViewModel in
-                let vc = WeatherContainerViewController(viewModel: weatherViewModel)
-                self?.navigationController?.pushViewController(vc, animated: false)
             })
             
             output.isLocationButtonHiddenDriver.drive(onNext: { [weak self] isHidden in

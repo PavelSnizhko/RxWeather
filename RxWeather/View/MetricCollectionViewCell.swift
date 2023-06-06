@@ -32,9 +32,7 @@ class MetricCollectionViewCell: UICollectionViewCell, ReusableView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.NunitoSans(.bold, size: 9)
-//        label.textColor = Color.secondaryForegroundColor.value
-        
+        label.font = UIFont.NunitoSans(.bold, size: 9)        
         return label
     }()
     

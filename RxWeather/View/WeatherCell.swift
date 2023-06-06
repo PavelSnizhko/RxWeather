@@ -66,7 +66,7 @@ final class WeatherCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupBindings() {
+    private func setupBindings() {
         viewModel.weatherImage.bind(to: weatherImageView.rx.image).disposed(by: disposeBag)
         
         dateLabel.text = viewModel.dayOfWeek

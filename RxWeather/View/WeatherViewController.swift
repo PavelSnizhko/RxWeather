@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class WeatherViewController: UIViewController {
+final class WeatherViewController: UIViewController {
         
     var forecastViewModel: ForecastViewModel! {
         didSet {

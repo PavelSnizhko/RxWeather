@@ -10,7 +10,6 @@ import RxSwift
 
 class MetricsViewController: UIViewController {
     
-    //TODO: make private via adding init for vc
     var viewModel: MetricViewModel! {
         didSet {
             setupBindings()
@@ -59,7 +58,7 @@ class MetricsViewController: UIViewController {
         ])
     }
     
-    func setupBindings() {
+    private func setupBindings() {
         disposeBag = DisposeBag {
             let wetherCellViewodels = viewModel.transform(input: .init(viewDidLoad: rx.viewDidLoad)).wetherCellViewodels
             
@@ -76,6 +75,8 @@ class MetricsViewController: UIViewController {
         }
     }
 }
+
+//MARK: - UICollectionViewDelegateFlowLayout
 
 extension MetricsViewController: UICollectionViewDelegateFlowLayout {
     

@@ -28,6 +28,8 @@ class CityViewModel {
         .disposed(by: disposeBag)
     }
     
+    var showWeatherViewController: Observable<WeatherContainerViewModel>!
+    
     func getPreviewCitiesIfNeeded() {
         let currentWeatherViewModels = cityManager.defaultCities
             .compactMap({ city -> (City, Location)? in
@@ -80,7 +82,6 @@ extension CityViewModel: ViewModelType {
     struct Output {
         let isNeededToShowCityListDriver: Driver<Bool>
         let citiesDriver: Driver<[City]>
-        let showWeatherVC: Observable<WeatherContainerViewModel>
         let isLocationButtonHiddenDriver: Driver<Bool>
         let previewCitiesDriver: Driver<[PreviewCityWeatherViewModel]>
     }
@@ -128,16 +129,15 @@ extension CityViewModel: ViewModelType {
         
         addCityToDefaults(cityObservable: searchingCitySelection)
         
-        let viewModelObservable = getWeatherViewModel(itemSelected: input.searchingItemSelected,
-                                                      useCurrentLocation: input.useCurrentLocation,
-                                                      cityBySelection: mergedCitySelection)
-        
         getPreviewCitiesIfNeeded()
         let previewCitiesDriver = cityWeatherViewModelSubject.asObservable().asDriver(onErrorJustReturn: [])
         
+        showWeatherViewController = getWeatherViewModel(itemSelected: input.searchingItemSelected,
+                                                      useCurrentLocation: input.useCurrentLocation,
+                                                      cityBySelection: mergedCitySelection)
+        
         return .init(isNeededToShowCityListDriver: isNeededToShowCityListDriver,
                      citiesDriver: citiesDriver,
-                     showWeatherVC: viewModelObservable,
                      isLocationButtonHiddenDriver: isLocationButtonHiddenDriver,
                      previewCitiesDriver: previewCitiesDriver)
     }
