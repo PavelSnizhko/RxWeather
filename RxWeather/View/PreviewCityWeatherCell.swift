@@ -7,33 +7,24 @@
 
 import UIKit
 
-struct PreviewCityWeatherViewModel {
-    let weatherCellViewModel: WeatherCellViewModel
-    let city: City
-    
-    var cityName: String? {
-        city.name
-    }
-}
-
-class PreviewCityWeatherCell: UITableViewCell, ReusableView {
+final class PreviewCityWeatherCell: UITableViewCell, ReusableView {
     
     private let temperatureLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .right
-        label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        label.font = UIFont.NunitoSans(.bold, size: 18)
         return label
     }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.font = UIFont.NunitoSans(.regular, size: 20)
         return label
     }()
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.NunitoSans(.regular, size: 18)
         label.textColor = .darkGray
         return label
     }()
@@ -47,7 +38,7 @@ class PreviewCityWeatherCell: UITableViewCell, ReusableView {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.backgroundColor = .lightGray
+        contentView.backgroundColor = Color.secondaryForegroundColor.value
         
         addSubview(temperatureLabel)
         addSubview(titleLabel)
@@ -75,12 +66,11 @@ class PreviewCityWeatherCell: UITableViewCell, ReusableView {
             
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            descriptionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8)
+            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
         ])
     }
     
-    func setupBindings() {
+    private func setupBindings() {
         temperatureLabel.text = viewModel.weatherCellViewModel.celciusTemperature
         descriptionLabel.text = viewModel.weatherCellViewModel.description
         titleLabel.text = viewModel.cityName

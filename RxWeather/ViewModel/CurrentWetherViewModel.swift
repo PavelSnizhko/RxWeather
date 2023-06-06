@@ -31,7 +31,7 @@ struct CurrentWeatherViewModel {
                         return nil
                     }
                     
-                    let iamgeURL = URL(string: "https://openweathermap.org/img/wn/\(weather.icon)@2x.png")!
+                    let iamgeURL = WeatherIconProvider.makeImageURL(from: weather.icon)
                     
                     let date = DateFormatHelper.dateFromUTC(dt: horlyWeather.dt)
                     let dateString = DateFormatHelper.hourlyDateFormatter.string(from: date)
@@ -50,6 +50,15 @@ struct CurrentWeatherViewModel {
                     return firstDate < secondDate
                 })
             }
+    }
+    
+    private func makeImageURL(from iconName: String) -> URL {
+        guard let url = URL(string: "https://openweathermap.org/img/wn/\(iconName)@2x.png") else {
+            assertionFailure("Broken URL")
+            return URL(string: "")!
+        }
+        
+        return url
     }
 }
 

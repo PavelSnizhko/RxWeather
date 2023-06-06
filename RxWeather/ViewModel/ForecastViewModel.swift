@@ -67,14 +67,14 @@ struct ForecastViewModel {
                         return nil
                     }
                     
-                    //TODO: change the way of providing link
-                    let iamgeURL = URL(string: "https://openweathermap.org/img/wn/\(weather.icon)@2x.png")!
+                    let iamgeURL = WeatherIconProvider.makeImageURL(from: weather.icon)
                     
                     return WeatherCellViewModel(imageURL: iamgeURL,
                                                 temperature: String(weatherList.main.temp),
                                                 description: weather.description,
                                                 dateString: dateString)
-                }.sorted { firstViewModel, secondViewModel in
+                }
+                .sorted { firstViewModel, secondViewModel in
                     guard let firstDate = DateFormatHelper.dateFormatter.date(from: firstViewModel.dateString),
                           let secondDate = DateFormatHelper.dateFormatter.date(from: secondViewModel.dateString) else {
                         return false
@@ -84,6 +84,7 @@ struct ForecastViewModel {
                 }
             }
     }
+    
     
 }
 

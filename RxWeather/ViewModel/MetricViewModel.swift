@@ -34,7 +34,6 @@ struct MetricCellViewModel {
 }
 
 struct MetricViewModel {
-    //    let currentWeather: Hourly
     let hourlyForecast: Observable<HourlyForecastContainer>
     
     init(hourlyForecast: Observable<HourlyForecastContainer>) {

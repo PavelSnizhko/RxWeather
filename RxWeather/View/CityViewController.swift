@@ -47,7 +47,8 @@ class CityViewController: UIViewController, UITableViewDelegate {
         view.addSubview(citiesTableView)
         citiesTableView.translatesAutoresizingMaskIntoConstraints = false
         citiesTableView.register(PreviewCityWeatherCell.self, forCellReuseIdentifier: "PreviewCityWeatherCell")
-
+        citiesTableView.rowHeight = 100
+        
         NSLayoutConstraint.activate([
             citiesTableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             citiesTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
