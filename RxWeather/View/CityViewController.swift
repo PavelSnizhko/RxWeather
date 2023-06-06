@@ -127,14 +127,16 @@ class CityViewController: UIViewController, UITableViewDelegate {
             .debounce(.milliseconds(500), scheduler: MainScheduler.instance) // Adds a debounce to avoid rapid changes
             .distinctUntilChanged()
         
-        let itemSelection = searchResultTableView.rx.itemSelected.distinctUntilChanged()
+        let searchingCitySelection = searchResultTableView.rx.itemSelected.distinctUntilChanged()
+        let citySelection = citiesTableView.rx.itemSelected.distinctUntilChanged()
         
         let itemDeleted = citiesTableView.rx.itemDeleted.asObservable()
 
         let input = CityViewModel.Input(text: text,
-                                        itemSelected: itemSelection,
+                                        searchingItemSelected: searchingCitySelection,
                                         useCurrentLocation: button.rx.tap.asObservable(),
-                                        itemDeleted: itemDeleted)
+                                        itemDeleted: itemDeleted,
+                                        citySelected: citySelection)
         
         let output = viewModel.transform(input: input)
         
@@ -144,7 +146,6 @@ class CityViewController: UIViewController, UITableViewDelegate {
             citiesTableView.rx.setDelegate(self)
             
             
-//            citiesTableView.rx.itemDeleted
             output.citiesDriver
                 .drive(searchResultTableView.rx.items(cellIdentifier: "Cell", cellType: UITableViewCell.self)) { (_, city, cell) in
                     guard let name = city.name,
@@ -156,13 +157,11 @@ class CityViewController: UIViewController, UITableViewDelegate {
             
             
             output.previewCitiesDriver
-//                .debug("Preview Cities")
                 .do(onNext: {vms in
                     print(vms)
                 })
                 .drive(citiesTableView.rx.items(cellIdentifier: "PreviewCityWeatherCell",
                                                 cellType: PreviewCityWeatherCell.self)) { (_, vm, cell) in
-                    print("Shit")
                     cell.viewModel = vm
                 }
             

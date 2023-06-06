@@ -110,7 +110,8 @@ extension ForecastViewModel: ViewModelType {
         let time = currentTimeObservable
             .map{currentTime -> String in
                 return DateFormatHelper.retrieveTime(from: currentTime)
-            }.asDriver(onErrorJustReturn: "")
+            }
+            .asDriver(onErrorJustReturn: "")
         
         let output = Output(wetherCellViewodels: viewModels, location: location, time: time)
         

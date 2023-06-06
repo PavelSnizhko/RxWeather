@@ -18,9 +18,6 @@ class CityViewModel {
     
     let cityWeatherViewModelSubject = BehaviorSubject<[PreviewCityWeatherViewModel]>(value: [])
     
-    //    @Storage(key: "isCityAdded", defaultValue: false)
-    //    private var isCityAdded: Bool
-    
     private var cityManager: DefaultCityManagable = DefaultCityStorageManager()
     private let weatherProvider: CurrentWeatherRequesting = WeatherProvider()
     
@@ -74,9 +71,10 @@ extension CityViewModel: ViewModelType {
     
     struct Input {
         let text: Observable<String>
-        let itemSelected: Observable<IndexPath>
+        let searchingItemSelected: Observable<IndexPath>
         let useCurrentLocation: Observable<Void>
         let itemDeleted: Observable<IndexPath>
+        let citySelected: Observable<IndexPath>
     }
     
     struct Output {
@@ -117,16 +115,22 @@ extension CityViewModel: ViewModelType {
             }
             .asDriver(onErrorJustReturn: [])
         
-        let cityBySelection = input.itemSelected
+        let citySelected = input.citySelected.map { [cityManager] indexPath in
+            cityManager.defaultCities[indexPath.row]
+        }
+        
+        let searchingCitySelection = input.searchingItemSelected
             .compactMap { [cityManager] indexPath in
                 cityManager.getSearchingCity(for: indexPath.row)
             }
         
-        addCityToDefaults(cityObservable: cityBySelection)
+        let mergedCitySelection = Observable.merge(citySelected, searchingCitySelection)
         
-        let viewModelObservable = getWeatherViewModel(itemSelected: input.itemSelected,
+        addCityToDefaults(cityObservable: searchingCitySelection)
+        
+        let viewModelObservable = getWeatherViewModel(itemSelected: input.searchingItemSelected,
                                                       useCurrentLocation: input.useCurrentLocation,
-                                                      cityBySelection: cityBySelection)
+                                                      cityBySelection: mergedCitySelection)
         
         getPreviewCitiesIfNeeded()
         let previewCitiesDriver = cityWeatherViewModelSubject.asObservable().asDriver(onErrorJustReturn: [])

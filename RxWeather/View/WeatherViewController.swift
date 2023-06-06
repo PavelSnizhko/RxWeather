@@ -35,6 +35,7 @@ class WeatherViewController: UIViewController {
     private let timeLabel = {
         let label = UILabel()
         label.font = UIFont.NunitoSans(.semibold, size: 16)
+        label.text = ""
         return label
     }()
     
@@ -91,7 +92,7 @@ class WeatherViewController: UIViewController {
         NSLayoutConstraint.activate([
             collectionView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            collectionView.topAnchor.constraint(equalTo: geoMetaStackView.bottomAnchor, constant: 30),
+            collectionView.topAnchor.constraint(equalTo: geoMetaStackView.bottomAnchor, constant: 10),
             collectionView.heightAnchor.constraint(equalToConstant: 300),
         ])
         
